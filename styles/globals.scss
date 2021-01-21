@@ -1,3 +1,5 @@
+@import "bootstrap/scss/bootstrap";
+
 html,
 body {
   padding: 0;
@@ -13,4 +15,19 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+
+.table {
+  width: 1200px;
+  max-width: 100%;
+}
+
+.container {
+  min-height: 100vh;
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

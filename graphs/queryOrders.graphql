@@ -1,0 +1,46 @@
+query($where: JSON, $limit: Int, $start: Int) {
+  orders(where: $where, limit: $limit, start: $start) {
+    id
+    created_at
+    updated_at
+    confirmed_at
+    confirmed
+    paid
+    paid_at
+    discount_seller
+    discount_platform
+    discount_code
+    channel_order_id
+    channel
+    shipping_at
+    recipient_name
+    recipient_address
+    recipient_contact
+    recipient_postcode
+    recipient_country {
+      name
+    }
+    order_at
+    recipient_state
+    recipient_city
+    shipping_status
+    state
+    shipping_method {
+      name
+    }
+    shipping_fee
+    sales_total
+    paid_total
+    tax
+    order_id
+    addon_total
+    discount_total
+    point_total
+  }
+
+  ordersConnection {
+    aggregate {
+      count
+    }
+  }
+}
