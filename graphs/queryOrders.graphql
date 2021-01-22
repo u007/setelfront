@@ -1,5 +1,5 @@
 query($where: JSON, $limit: Int, $start: Int) {
-  orders(where: $where, limit: $limit, start: $start) {
+  orders(where: $where, limit: $limit, start: $start, sort: "created_at:desc") {
     id
     created_at
     updated_at

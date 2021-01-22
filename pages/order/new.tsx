@@ -5,38 +5,17 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Container } from 'react-bootstrap';
 import Link from 'next/link'
 import QUERY_ORDER from '../../graphs/queryOrderDetail.graphql';
-import UPDATE_ORDER from '../../graphs/updateOrder.graphql';
+import UPDATE_ORDER from '../../graphs/createOrder.graphql';
 import ItemsComp from 'components/order/items';
 
 export default function Order(props) {
   const router = useRouter()
   const { id } = router.query;
-  const [order, setOrder] = useState("");
-  let [loading, setLoading] = useState(true);
+  let error;
+  const [order, setOrder] = useState({ items: [] });
+  let [loading, setLoading] = useState(false);
   let [notice, setNotice] = useState(null);
-  const [updateOrder] = useMutation(UPDATE_ORDER);
-
-  let { data, error } = useQuery(QUERY_ORDER, {
-    variables: { id },
-    onCompleted: (res) => {
-      // console.debug('completed!', data.order.items);
-      // const dataOrder = Object.assign({}, data.order, { items: data.order.items.map(()=>) })
-      const formData = Object.assign({}, data.order);
-      if (formData.recipient_country != null) {
-        formData.recipient_country = data.order.recipient_country.id;
-      }
-      setOrder(formData);
-      setLoading(false);
-    }
-  });
-
-  if (loading) {
-    return <p>loading...</p>;
-  }
-
-  if (order == null) {
-    error = new ApolloError({ errorMessage: 'Invalid order' })
-  }
+  const [createOrder] = useMutation(UPDATE_ORDER);
 
   if (error) {
     return <div className="alert alert-danger" role="alert">
@@ -48,7 +27,6 @@ export default function Order(props) {
     // let initialState = order[field];
     // const [value, setValue] = useState(initialState);
     function setValueFromEvent(e) {
-      // console.debug('changed', e.target);
       const update = { [field]: e.target[valueKey] };
       const updating = Object.assign({}, order, update);
       // console.debug('updating', update);
@@ -86,10 +64,9 @@ export default function Order(props) {
         quantity: item.quantity
       }
     });
-    const updateData = {
+    const insertData = {
       variables: {
         input: {
-          where: { id: order.id },
           data: {
             recipient_name: order.recipient_name,
             recipient_address: order.recipient_address,
@@ -104,22 +81,24 @@ export default function Order(props) {
       }
     };
     // console.debug('updateQuery', updateData);
-    const res = await updateOrder(updateData);
+    const res = await createOrder(insertData);
     // console.debug('saved', res.data.updateOrder.order);
-    setOrder(res.data.updateOrder.order);
-    setNotice("Order saved");
+    // setOrder(res.data.createOrder.order);
+    setNotice("Order saved, redirecting to order...");
+    setTimeout(() => {
+      router.push('/order/' + res.data.createOrder.order.id)
+    }, 3000);
     window.scrollTo(0, 0);
   }
 
   return (
     <div >
       <Head>
-        <title>Order Detail</title>
+        <title>New Order</title>
       </Head>
       <Container>
-        <h1>Order Detail</h1>
+        <h1>New Order</h1>
         <div className="toolbar">
-          <Link href="/order"><a>Back to list</a></Link>
         </div>
 
         {notice && <div className="full alert alert-info" role="alert">
@@ -128,11 +107,6 @@ export default function Order(props) {
 
         <Row>
           <Col md={6} sm={12}>
-            {order.id && <Form.Group controlId="orderForm.orderID">
-              <Form.Label>Order ID</Form.Label>
-              <div>{order.order_id}</div>
-            </Form.Group>}
-
             <Form.Group controlId="orderForm.recipient_name">
               <Form.Label>Recipient</Form.Label>
               <Form.Control value={order.recipient_name} placeholder="name" {...useOrderInput('recipient_name')} />

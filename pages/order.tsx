@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useQuery } from '@apollo/client';
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Pagination } from 'react-bootstrap';
+import { Pagination, Button } from 'react-bootstrap';
 
 import QUERY_ORDERS from '../graphs/queryOrders.graphql';
 
@@ -57,6 +57,10 @@ export default function Order(props) {
     );
   }
 
+  const addOrder = () => {
+    router.push('/order/new');
+  }
+
   return (
     <div>
       <Head>
@@ -64,6 +68,9 @@ export default function Order(props) {
       </Head>
       <div className="container">
         <h1>Orders</h1>
+        <div className="tools">
+          <Button onClick={addOrder}>New Order</Button>
+        </div>
         <table className="table">
           <thead>
             <tr>
