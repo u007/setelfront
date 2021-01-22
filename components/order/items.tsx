@@ -10,10 +10,11 @@ import classnames from 'classnames';
 
 export default function OrderItems(props) {
   let totalAmount = 0.0;
-  const items = props.items.map((item) => {
+  console.debug("items", props.items.length);
+  const items = props.items.map((item, i) => {
     totalAmount += item.sales_total;
     return (
-      <tr>
+      <tr key={i}>
         <td>{item.sku}</td>
         <td>{item.quantity}</td>
         <td>{item.sales_total}</td>
@@ -21,18 +22,21 @@ export default function OrderItems(props) {
     )
   })
   return (
-    <table className={classnames('pill', props.styleName)}>
+    <table className={classnames('', props.styleName)}>
       <thead>
-        <th>SKU</th>
-        <th>Quantity</th>
-        <th>Amount</th>
+        <tr>
+          <th>SKU</th>
+          <th>Quantity</th>
+          <th>Amount</th>
+        </tr>
       </thead>
       <tbody>
-
+        {items}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan="3" style={{ float: 'right' }}>
+          <td colSpan={2} ></td>
+          <td style={{}}>
             {totalAmount}
           </td>
         </tr>
