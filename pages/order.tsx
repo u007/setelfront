@@ -15,7 +15,7 @@ export default function Order(props) {
     router.push("/order?page=" + e.currentTarget.dataset.page);
   }
 
-  let page = 'page' in router.query ? router.query.page : 1;
+  let page: Int = 'page' in router.query ? router.query.page : 1;
   const limit = 5;
   const { data, loading, error } = useQuery(QUERY_ORDERS, {
     variables: { limit, start: (page - 1) * limit },
@@ -35,7 +35,7 @@ export default function Order(props) {
 
   const rows = data.orders.map((order) => {
     return <tr key={order.id}>
-      <td><Link href={"order/" + order.id}>{order.id}</Link></td>
+      <td><Link href={"order/" + order.id}>{order.order_id}</Link></td>
       <td>{order.recipient_name}</td>
       <td>{order.created_at}</td>
       <td>{order.sales_total}</td>
