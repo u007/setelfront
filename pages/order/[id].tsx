@@ -16,16 +16,19 @@ export default function Order(props) {
   let [notice, setNotice] = useState(null);
   const [updateOrder] = useMutation(UPDATE_ORDER);
 
+  const setOrderFromRemote = (data) => {
+    const formData = Object.assign({}, data);
+    if (formData.recipient_country != null) {
+      formData.recipient_country = data.recipient_country.id;
+    }
+    setOrder(formData);
+  }
   let { data, error } = useQuery(QUERY_ORDER, {
     variables: { id },
-    onCompleted: (res) => {
+    onCompleted: async (res) => {
       // console.debug('completed!', data.order.items);
       // const dataOrder = Object.assign({}, data.order, { items: data.order.items.map(()=>) })
-      const formData = Object.assign({}, data.order);
-      if (formData.recipient_country != null) {
-        formData.recipient_country = data.order.recipient_country.id;
-      }
-      setOrder(formData);
+      await setOrderFromRemote(data.order);
       setLoading(false);
     }
   });
@@ -106,7 +109,8 @@ export default function Order(props) {
     // console.debug('updateQuery', updateData);
     const res = await updateOrder(updateData);
     // console.debug('saved', res.data.updateOrder.order);
-    setOrder(res.data.updateOrder.order);
+    await setOrderFromRemote(res.data.updateOrder.order);
+
     setNotice("Order saved");
     window.scrollTo(0, 0);
   }
