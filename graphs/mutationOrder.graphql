@@ -1,0 +1,54 @@
+mutation($input: updateOrderInput!) {
+  updateOrder(input: $input) {
+    order {
+      id
+      created_at
+      updated_at
+      confirmed_at
+      confirmed
+      paid
+      paid_at
+      discount_seller
+      discount_platform
+      discount_code
+      channel_order_id
+      channel
+      shipping_at
+      recipient_name
+      recipient_address
+      recipient_contact
+      recipient_postcode
+      recipient_country {
+        name
+      }
+      order_at
+      recipient_state
+      recipient_city
+      shipping_status
+      state
+      shipping_method {
+        name
+      }
+      shipping_fee
+      sales_total
+      paid_total
+      tax
+      order_id
+      items {
+        sku
+        name
+        quantity
+        food_menu {
+          sku
+          name
+        }
+        discount_seller
+        selling_price
+        sales_total
+      }
+      addon_total
+      discount_total
+      point_total
+    }
+  }
+}

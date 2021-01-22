@@ -1,22 +1,20 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router'
-import { useQuery, ApolloError } from '@apollo/client';
+import { useQuery, useMutation, ApolloError } from '@apollo/client';
 import { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Container } from 'react-bootstrap';
 import Link from 'next/link'
 import QUERY_ORDER from '../../graphs/queryOrderDetail.graphql';
+import UPDATE_ORDER from '../../graphs/mutationOrder.graphql';
 import ItemsComp from 'components/order/items';
-
-const saveOrder = () => {
-  console.debug('save');
-}
-
 
 export default function Order(props) {
   const router = useRouter()
   const { id } = router.query;
   const [order, setOrder] = useState("");
   let [loading, setLoading] = useState(true);
+  let [notice, setNotice] = useState(null);
+  const [updateOrder, { updatedOrder }] = useMutation(UPDATE_ORDER);
 
   let { data, error } = useQuery(QUERY_ORDER, {
     variables: { id },
@@ -61,10 +59,50 @@ export default function Order(props) {
 
   const addItem = () => {
     const items = [...order.items];
-    items.push({ sku: 'CURRMEE', quantity: 5, name: 'Curry Mee', selling_price: 10.0, sales_total: 10.0 * 5 });
+    items.push({ sku: 'CURRMEE', quantity: 5, name: 'Curry Mee', selling_price: 7.5, sales_total: 7.5 * 5 });
     const newOrder = Object.assign({}, order, { items });
     console.debug('newitems', newOrder.items);
     setOrder(newOrder);
+  }
+
+  const cancel = () => {
+    if (!confirm("Confirm cancel this?")) {
+      return;
+    }
+    router.push('/order');
+  }
+
+  const saveOrder = async () => {
+    // console.debug('save');
+    setNotice(null);
+
+    const postItems = order.items.map((item) => {
+      return {
+        food_menu: 1,
+        quantity: item.quantity
+      }
+    });
+    const updateData = {
+      variables: {
+        input: {
+          where: { id: order.id },
+          data: {
+            recipient_name: order.recipient_name,
+            recipient_address: order.recipient_address,
+            recipient_address2: order.recipient_address2,
+            recipient_city: order.recipient_city,
+            recipient_state: order.recipient_state,
+            items: postItems
+          }
+        }
+      }
+    };
+    // console.debug('updateQuery', updateData);
+    const res = await updateOrder(updateData);
+    // console.debug('saved', res.data.updateOrder.order);
+    setOrder(res.data.updateOrder.order);
+    setNotice("Order saved");
+    window.scrollTo(0, 0);
   }
 
   return (
@@ -77,6 +115,10 @@ export default function Order(props) {
         <div className="toolbar">
           <Link href="/order"><a>Back to list</a></Link>
         </div>
+
+        {notice && <div className="full alert alert-info" role="alert">
+          {notice}
+        </div>}
 
         <Row>
           <Col md={6} sm={12}>
@@ -141,8 +183,11 @@ export default function Order(props) {
         </Row>
         <br /><br />
         <Row className=" actions">
-          <Col sm={12}>
+          <Col sm={6}>
             <Button type="button" variant="primary" onClick={saveOrder}>Save</Button>
+          </Col>
+          <Col sm={6}>
+            <Button type="button" variant="secondary" onClick={cancel}>Cancel</Button>
           </Col>
         </Row>
       </Container>
